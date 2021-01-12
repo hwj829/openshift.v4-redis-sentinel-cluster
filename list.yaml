@@ -20,7 +20,7 @@ items:
     source:
       contextDir: image
       git:
-        uri: https://github.com/mangirdaz/redis-openshift.git
+        uri: https://github.com/hwj829/redis-openshift.git
       type: Git
     strategy:
       dockerStrategy:

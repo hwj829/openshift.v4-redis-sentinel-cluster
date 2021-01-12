@@ -19,16 +19,18 @@ function launchmaster() {
     echo "Redis master data doesn't exist, data won't be persistent!"
     mkdir /redis-master-data
   fi
-  redis-server /redis-master/redis.conf
+  redis-server /redis-master/redis.conf --protected-mode no
 }
 
 function launchsentinel() {
-  while true; do
+  echo "Enter launch sentinel...."
+
+   while true; do
     master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
     if [[ -n ${master} ]]; then
       master="${master//\"}"
     else
-      master="${REDIS_MASTER_SERVICE_HOST}"
+      master=$(hostname -i)
     fi
 
     redis-cli -h ${master} INFO
@@ -45,12 +47,16 @@ function launchsentinel() {
   echo "sentinel down-after-milliseconds mymaster 60000" >> ${sentinel_conf}
   echo "sentinel failover-timeout mymaster 180000" >> ${sentinel_conf}
   echo "sentinel parallel-syncs mymaster 1" >> ${sentinel_conf}
+  echo "bind 0.0.0.0" >> ${sentinel_conf}
 
-  redis-sentinel ${sentinel_conf}
+  redis-sentinel ${sentinel_conf} --protected-mode no
+
 }
 
 function launchslave() {
-  while true; do
+  echo "Enter lauch slave....."
+
+   while true; do
     master=$(redis-cli -h ${REDIS_SENTINEL_SERVICE_HOST} -p ${REDIS_SENTINEL_SERVICE_PORT} --csv SENTINEL get-master-addr-by-name mymaster | tr ',' ' ' | cut -d' ' -f1)
     if [[ -n ${master} ]]; then
       master="${master//\"}"
@@ -59,6 +65,7 @@ function launchslave() {
       sleep 60
       exit 1
     fi
+
     redis-cli -h ${master} INFO
     if [[ "$?" == "0" ]]; then
       break
@@ -68,7 +75,8 @@ function launchslave() {
   done
   sed -i "s/%master-ip%/${master}/" /redis-slave/redis.conf
   sed -i "s/%master-port%/6379/" /redis-slave/redis.conf
-  redis-server /redis-slave/redis.conf
+  redis-server /redis-slave/redis.conf --protected-mode no
+
 }
 
 if [[ "${MASTER}" == "true" ]]; then
