@@ -63,6 +63,17 @@ items:
           - name: data
             emptyDir: {}
     test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - redis
+        from:
+          kind: ImageStreamTag
+          name: redis:latest
+          namespace: redis
+      type: ImageChange
   status: {}
 kind: List
 metadata: {}

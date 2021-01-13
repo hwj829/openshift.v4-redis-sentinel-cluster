@@ -19,7 +19,7 @@ items:
           redis-sentinel: "true"
       spec:
         containers:
-        - image: 172.30.151.14:5000/redis/redis@sha256:e508f686a4f50eb54350c091f3df8fc6a9649dd8c613482088534c5ca70cfc37
+        - image: image-registry.openshift-image-registry.svc:5000/mdc/redis@sha256:b53938ff992650f4084e4dc2f5b92b7434994c6768644cc28a44bfa61f58d784
           imagePullPolicy: Always
           name: sentinel
           env:
@@ -39,17 +39,6 @@ items:
           - name: data
             emptyDir: {}
     test: false
-    triggers:
-    - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - sentinel
-        from:
-          kind: ImageStreamTag
-          name: redis:latest
-          namespace: redis
-      type: ImageChange
   status: {}
 kind: List
 metadata: {}

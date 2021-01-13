@@ -16,7 +16,7 @@ items:
           app: redis
       spec:
         containers:
-        - image: image-registry.openshift-image-registry.svc:5000/mdc/redis@sha256:b53938ff992650f4084e4dc2f5b92b7434994c6768644cc28a44bfa61f58d784
+        - image: image-registry.openshift-image-registry.svc:5000/mdc/redis@sha256:c3d0c7da547b7d7970a5ff30acd7d4fa660a20bc09ecd5fd21592413e26686a4
           imagePullPolicy: Always
           name: redis 
           volumeMounts:
@@ -33,6 +33,17 @@ items:
           - name: data
             emptyDir: {}
     test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - redis
+        from:
+          kind: ImageStreamTag
+          name: redis:latest
+          namespace: redis
+      type: ImageChange
   status: {}
 kind: List
 metadata: {}

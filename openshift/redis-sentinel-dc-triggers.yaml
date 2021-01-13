@@ -4,26 +4,32 @@ items:
   kind: DeploymentConfig
   metadata:
     labels:
-      app: redis
-    name: redis
+      app: redis-sentinel
+      redis-sentinel: "true"
+    name: redis-sentinel
   spec:
     replicas: 3
     selector:
-      app: redis
+      app: redis-sentinel
+      redis-sentinel: "true"
     template:
       metadata:
         labels:
-          app: redis
+          app: redis-sentinel
+          redis-sentinel: "true"
       spec:
         containers:
         - image: image-registry.openshift-image-registry.svc:5000/mdc/redis@sha256:b53938ff992650f4084e4dc2f5b92b7434994c6768644cc28a44bfa61f58d784
           imagePullPolicy: Always
-          name: redis 
+          name: sentinel
+          env:
+            - name: SENTINEL
+              value: "true"
           volumeMounts:
             - mountPath: /redis-master-data
               name: data 
           ports:
-            - containerPort: 6379
+            - containerPort: 26379
           resources: {}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
@@ -33,6 +39,17 @@ items:
           - name: data
             emptyDir: {}
     test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - sentinel
+        from:
+          kind: ImageStreamTag
+          name: redis:latest
+          namespace: redis
+      type: ImageChange
   status: {}
 kind: List
 metadata: {}

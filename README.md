@@ -8,10 +8,17 @@ This example assumes that you have a Openshift cluster installed and running, an
 
 
 ### Run 
-
+    # note: path = redis-openshift'directory path
     #make sure you have base image available
-    oc create -f https://raw.githubusercontent.com/mjudeikis/redis-openshift/master/openshift/is-base.yaml -n openshift
+    oc create -f #{path}/redis-openshift/master/openshift/is-base.yaml -n openshift
     #create all components
-    oc create -f https://raw.githubusercontent.com/mjudeikis/redis-openshift/master/list.yaml
+    oc create -f #{path}/redis-openshift/master/list.yaml
     #start build and watch 
     oc start-build redis-build
+    
+    #modify the redis image path in dc/redis-master
+    #modify the redis image path in dc/redis-sentinel
+    
+### delete 
+    oc delete -f #{path}/redis-openshift/master/openshift/list.yaml -mdc
+    oc delete -f #{path}/redis-openshift/master/openshift/is-base.yaml -n mdc
